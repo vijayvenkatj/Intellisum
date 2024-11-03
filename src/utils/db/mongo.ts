@@ -12,7 +12,7 @@ const options = {
     deprecationErrors: true,
   },
   tls: true, // Enable TLS connection
-  // tlsInsecure: true, // Uncomment this for development/testing only
+  tlsInsecure: true, // Uncomment this for development/testing only
 };
 
 let client: MongoClient;
