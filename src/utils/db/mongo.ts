@@ -1,37 +1,41 @@
-// This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
-import { MongoClient, ServerApiVersion } from "mongodb"
- 
+import { MongoClient, ServerApiVersion } from "mongodb";
+
 if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
- 
-const uri = process.env.MONGODB_URI
+
+const uri = process.env.MONGODB_URI;
 const options = {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
   },
-}
- 
-let client: MongoClient
- 
+  tls: true, // Enable TLS connection
+  // tlsInsecure: true, // Uncomment this for development/testing only
+};
+
+let client: MongoClient;
+
 if (process.env.NODE_ENV === "development") {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
+  // In development mode, use a global variable to preserve the value
   let globalWithMongo = global as typeof globalThis & {
-    _mongoClient?: MongoClient
-  }
- 
+    _mongoClient?: MongoClient;
+  };
+
   if (!globalWithMongo._mongoClient) {
-    globalWithMongo._mongoClient = new MongoClient(uri, options)
+    globalWithMongo._mongoClient = new MongoClient(uri, options);
   }
-  client = globalWithMongo._mongoClient
+  client = globalWithMongo._mongoClient;
 } else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options)
+  // In production mode, create a new MongoClient instance
+  client = new MongoClient(uri, options);
 }
- 
-// Export a module-scoped MongoClient. By doing this in a
-// separate module, the client can be shared across functions.
-export default client
+
+// Connect to MongoDB and log the result
+client.connect()
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+
+// Export the MongoClient instance for use in other parts of the application
+export default client;
