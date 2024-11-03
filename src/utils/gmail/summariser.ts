@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function Summariser(sender: string, content: string) {
+
+    try{
     const genAi = new GoogleGenerativeAI(process.env.GEMINI_APIKEY!); // Set your API key here
     const model = await genAi.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -20,5 +22,10 @@ export async function Summariser(sender: string, content: string) {
     const result = await model.generateContent([template]);
     
     return JSON.parse(result.response.text());
+    }
+    catch(e){
+        console.log(e);
+        return {sender: sender, context: content};
+    }
 }
 

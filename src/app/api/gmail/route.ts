@@ -4,43 +4,75 @@ import { getEmails } from "@/utils/gmail/gmailfunctions";
 import axios from 'axios';
 import { Summariser } from "@/utils/gmail/summariser";
 
-async function refreshAccessToken(refreshToken: string) {
+interface TokenResponse {
+  access_token: string;
+  expires_in: number;
+  scope?: string;
+  token_type?: string;
+}
+
+interface RefreshResult {
+  access_token: string;
+  expires_at: number;
+}
+
+class TokenRefreshError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 500,
+    public responseData?: any
+  ) {
+    super(message);
+    this.name = 'TokenRefreshError';
+  }
+}
+
+async function refreshAccessToken(refreshToken: string): Promise<RefreshResult> {
+    if (!refreshToken) {
+        console.log('Refresh token is required');
+        throw new TokenRefreshError('Refresh token is required', 400);
+    }
+
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    
+
+    if (!clientId || !clientSecret) {
+        throw new TokenRefreshError('OAuth credentials not configured', 500);
+    }
+
+    const params = new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+    });
+
     try {
-        const response = await axios.post(
+        const response = await axios.post<TokenResponse>(
             'https://oauth2.googleapis.com/token',
-            {
-                client_id: clientId,
-                client_secret: clientSecret,
-                refresh_token: refreshToken,
-                grant_type: 'refresh_token',
-            },
+            params.toString(),
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                transformRequest: [(data) => {
-                    return Object.entries(data)
-                        .map(([key, value]: any) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-                        .join('&');
-                }]
+                }
             }
         );
-
+        console.log(response);
         return {
             access_token: response.data.access_token,
-            expires_at: Math.floor(Date.now() / 1000) + response.data.expires_in,
+            expires_at: Math.floor(Date.now() / 1000) + response.data.expires_in
         };
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error('Token refresh error:', {
-                status: error.response?.status,
+            const status = error.response?.status || 500;
+            const errorMessage = error.response?.data?.error || 'Token refresh failed';
+            console.error('Token refresh failed:', {
+                status,
                 data: error.response?.data
             });
+            throw new TokenRefreshError(errorMessage, status, error.response?.data);
         }
-        throw error;
+        throw new TokenRefreshError('Unknown error during token refresh');
     }
 }
 
@@ -80,7 +112,8 @@ export async function POST(request: NextRequest) {
 
         if (account.expires_at < (Date.now() / 1000) + 300) {
             try {
-               
+                console.log(account)
+                console.log(account.refresh_token);
                 const newTokens = await refreshAccessToken(account.refresh_token);
                 
                 await accounts.updateOne(
@@ -95,10 +128,15 @@ export async function POST(request: NextRequest) {
                 
                 accessToken = newTokens.access_token;
             } catch (error) {
-                const status = axios.isAxiosError(error) && error.response?.status === 400 ? 400 : 401;
+                if (error instanceof TokenRefreshError) {
+                    return NextResponse.json(
+                        { error: error.message, details: error.responseData },
+                        { status: error.statusCode }
+                    );
+                }
                 return NextResponse.json(
                     { error: 'Failed to refresh access token' },
-                    { status }
+                    { status: 500 }
                 );
             }
         }
@@ -111,16 +149,13 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        let summaries:any = []
+        const summaries = await Promise.all(
+            emails.map(async (email) => {
+                return await Summariser(email.from, email.snippet);
+            })
+        );
 
-        for(const email of emails){
-            const summary = await Summariser(email.from,email.snippet)
-            console.log(summary)
-            summaries.push(summary)
-        }
-        return NextResponse.json(summaries)
-
-        
+        return NextResponse.json(summaries);
 
     } catch (error) {
         console.error('API Error:', error);
