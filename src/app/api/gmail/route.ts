@@ -57,7 +57,6 @@ async function refreshAccessToken(refreshToken: string): Promise<RefreshResult> 
                 }
             }
         );
-        console.log(response);
         return {
             access_token: response.data.access_token,
             expires_at: Math.floor(Date.now() / 1000) + response.data.expires_in
@@ -112,9 +111,9 @@ export async function POST(request: NextRequest) {
 
         if (account.expires_at < (Date.now() / 1000) + 300) {
             try {
-                console.log(account)
-                console.log(account.refresh_token);
-                const newTokens = await refreshAccessToken(account.refresh_token);
+                const Details = JSON.stringify(account);
+                const Refresh = JSON.parse(Details);
+                const newTokens = await refreshAccessToken(Refresh.refresh_token as string);
                 
                 await accounts.updateOne(
                     { userId: user._id },

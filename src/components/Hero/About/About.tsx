@@ -3,7 +3,6 @@ import React from 'react';
 import Image from 'next/image';
 import BgImage from '../../../../public/bg.png';
 import Logo from '@/components/Logo/Logo';
-import LoginButton from '@/components/Navbar/Login/Login';
 import { signIn, useSession } from 'next-auth/react';
 import { Mail, Clock, CheckCircle } from 'lucide-react';
 
