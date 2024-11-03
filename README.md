@@ -1,5 +1,3 @@
-Here’s the full copyable Markdown (MD) file for your Next.js Gmail API project. You can simply copy the entire content below and save it as `README.md` in your project repository.
-
 ```markdown
 # Next.js Gmail API Application
 
@@ -109,7 +107,3 @@ For questions, feedback, or to report issues, please reach out via email: [conta
 
 Thank you for your interest in the Next.js Gmail API Application!
 ```
-
-### Instructions:
-- Make sure to replace any placeholders (like `your-username` and `your-repo-name`) with your actual GitHub username and repository name.
-- Save this content as `README.md` in the root of your project directory for easy access and visibility on GitHub.
