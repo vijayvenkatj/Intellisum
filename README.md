@@ -1,4 +1,4 @@
-```markdown
+
 # Next.js Gmail API Application
 
 This is a Next.js application that integrates with the Gmail API, allowing users to manage their emails effectively. The app is currently in the testing phase, and your participation is crucial for improving the application.
@@ -106,4 +106,3 @@ Contributions are welcome! If you have suggestions, feature requests, or find bu
 For questions, feedback, or to report issues, please reach out via email: [contact.vijayvenkatj@gmail.com](mailto:contact.vijayvenkatj@gmail.com).
 
 Thank you for your interest in the Next.js Gmail API Application!
-```
