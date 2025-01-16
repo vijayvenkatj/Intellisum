@@ -7,8 +7,6 @@ This is a Next.js application that integrates with the Gmail API, allowing users
 
 - **Authenticate with Gmail**: Users can log in using their Google account to access their Gmail data.
 - **View Emails**: Fetch and display emails from the user's inbox.
-- **Send Emails**: Compose and send emails directly from the application.
-- **Manage Labels**: Create and delete labels for better email organization.
 - **User-friendly Interface**: Designed for ease of use and navigation.
 
 ## Prerequisites
