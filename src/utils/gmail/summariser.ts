@@ -4,7 +4,7 @@ export async function Summariser(sender: string, content: string) {
 
     try{
     const genAi = new GoogleGenerativeAI(process.env.GEMINI_APIKEY!); // Set your API key here
-    const model = await genAi.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = await genAi.getGenerativeModel({ model: "gemini-2.0-flash-exp", generationConfig: {responseMimeType : "application/json"} });
 
     const template = `
     You are a personal assistant who summarizes the mail contents and provides a summary based on the given content.
