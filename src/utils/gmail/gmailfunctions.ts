@@ -1,30 +1,6 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
-const SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.labels',
-    'https://www.googleapis.com/auth/gmail.modify'
-];
-
-export const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
-);
-
-export function getAuthUrl() {
-    return oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES,
-        prompt: 'consent'
-    });
-}
-
-export async function getTokens(code: string) {
-    const { tokens } = await oauth2Client.getToken(code);
-    return tokens;
-}
 
 export async function getEmails(accessToken: string) {
     try {
@@ -76,4 +52,5 @@ function parseEmailData(email: any) {
         snippet: email.snippet
     };
 }
+
 

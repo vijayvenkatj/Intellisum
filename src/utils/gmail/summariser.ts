@@ -3,12 +3,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export async function Summariser(sender: string, content: string) {
 
     try{
-    const genAi = new GoogleGenerativeAI(process.env.GEMINI_APIKEY!); // Set your API key here
+    const genAi = new GoogleGenerativeAI(process.env.GEMINI_APIKEY!);
     const model = await genAi.getGenerativeModel({ model: "gemini-2.0-flash-exp", generationConfig: {responseMimeType : "application/json"} });
 
     const template = `
     You are a personal assistant who summarizes the mail contents and provides a summary based on the given content.
-    Result should only contain the result nothing else like json or \` strictly.
+    Do not include unneccessary emojis or HTML syntax. Also Be Precise.
     Respond with a JSON object using the following instructions: 
     {
         "sender": "<Sender of the email>",
